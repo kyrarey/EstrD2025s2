@@ -1,34 +1,34 @@
-
--- 1)
--- A)
+-- 2.1
+-- A
 sucesor :: Int -> Int
 sucesor n = n + 1
 
--- B)
+-- B
 sumar :: Int -> Int -> Int
 sumar n m = n + m
 
--- C)
+-- C
 divisiónYResto :: Int -> Int -> (Int, Int)
 divisiónYResto n m = (div n m, mod n m)
 
--- D)
+-- D
 maxDelPar :: (Int, Int) -> Int
 maxDelPar (n, m) =
   if (n > m)
     then n
     else m
 
-{-      -- 2)
+{-
+-- 2.2
         sumar (maxDelPar (divisiónYResto 18 2)) (sucesor 0)
         sucesor (sumar (maxDelPar (divisiónYResto 6 3)) 7)
         sumar (sucesor (maxDelPar (divisiónYResto 180 20))) 0
         maxDelPar(divisiónYResto (sumar 12 8) (sucesor 1))
 -}
--- 3
 
--- 1
+-- 3.1
 data Dir = Norte | Este | Sur | Oeste
+  deriving (Show)
 
 -- A
 opuesto :: Dir -> Dir
@@ -94,7 +94,6 @@ estaEnElMedio Domingo = False
 estaEnElMedio _ = True
 
 -- 3.3
-
 -- A
 negar :: Bool -> Bool
 negar True = False
@@ -177,8 +176,8 @@ tipo (M t e) = t
 
 -- B
 cantidadDePokemonDe :: TipoDePokemon -> Entrenador -> Int
-cantidadDePokemonDe t (E _ p1 p2) = unoSiCeroSino(coincidenTipos (t, tipo p1) ) + unoSiCeroSino(coincidenTipos (t, tipo p2) )
-        
+cantidadDePokemonDe t (E _ p1 p2) = unoSiCeroSino (coincidenTipos (t, tipo p1)) + unoSiCeroSino (coincidenTipos (t, tipo p2))
+
 unoSiCeroSino :: Bool -> Int
 unoSiCeroSino True = 1
 unoSiCeroSino _ = 0
@@ -188,7 +187,6 @@ coincidenTipos (Agua, Agua) = True
 coincidenTipos (Planta, Planta) = True
 coincidenTipos (Fuego, Fuego) = True
 coincidenTipos (_, _) = False
-
 
 -- C
 juntarPokemon :: (Entrenador, Entrenador) -> [Pokemon] -- AAAA
