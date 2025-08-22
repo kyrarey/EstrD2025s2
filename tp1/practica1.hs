@@ -1,3 +1,4 @@
+
 -- 1)
 -- A)
 sucesor :: Int -> Int
@@ -28,7 +29,6 @@ maxDelPar (n, m) =
 
 -- 1
 data Dir = Norte | Este | Sur | Oeste
-deriving (Show)
 
 -- A
 opuesto :: Dir -> Dir
@@ -135,7 +135,7 @@ crecer (P n e) = P n (sucesor e)
 
 -- D
 cambioDeNombre :: String -> Persona -> Persona -- AAAA
-cambioDeNombre m (P n e) = (P m e)
+cambioDeNombre m (P n e) = P m e
 
 -- E
 esMayorQueLaOtra :: Persona -> Persona -> Bool
