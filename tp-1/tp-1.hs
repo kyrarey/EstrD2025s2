@@ -8,8 +8,8 @@ sumar :: Int -> Int -> Int
 sumar n m = n + m
 
 -- C
-divisiónYResto :: Int -> Int -> (Int, Int)
-divisiónYResto n m = (div n m, mod n m)
+divisionYResto :: Int -> Int -> (Int, Int)
+divisionYResto n m = (div n m, mod n m)
 
 -- D
 maxDelPar :: (Int, Int) -> Int
