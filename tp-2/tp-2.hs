@@ -1,7 +1,6 @@
 -- PRACTICA 2
 
 -- 1 RECURSION SOBRE LISTAS
-
 -- 1
 sumatoria :: [Int] -> Int
 sumatoria [] = 0
@@ -28,19 +27,14 @@ disyuncion [] = False
 disyuncion (x : xs) = x || disyuncion xs
 
 -- 6
-{-
 aplanar :: [[a]] -> [a]
 aplanar [] = []
-aplanar (xs : xss) = xs : aplanar xss
--}
+aplanar (xs : xss) = xs ++ aplanar xss
 
 -- 7
 pertenece :: (Eq a) => a -> [a] -> Bool
 pertenece _ [] = False
-pertenece e (x : xs) =
-  if x == e
-    then True
-    else False || pertenece e xs
+pertenece e (x : xs) = x == e || pertenece e xs
 
 -- 8
 apariciones :: (Eq a) => a -> [a] -> Int
@@ -78,15 +72,12 @@ agregar [] ys = ys
 agregar (x : xs) ys = x : agregar xs ys
 
 -- 13
-{-
 reversa :: [a] -> [a]
 reversa [] = []
-reversa (x : xs) = reversa xs : x
--}
+reversa (x : xs) = reversa xs ++ [x] -- por qué no (:)?
 
 -- 14
 zipMaximos :: [Int] -> [Int] -> [Int]
-zipMaximos [] [] = []
 zipMaximos xs [] = xs
 zipMaximos [] ys = ys
 zipMaximos (x : xs) (y : ys) =
@@ -104,8 +95,8 @@ elMinimo (x : xs) =
     then x
     else elMinimo xs
 
--- 2 RECURSION SOBRE NUMEROS
 
+-- 2 RECURSION SOBRE NUMEROS
 -- 1
 factorial :: Int -> Int
 -- precondición: n no debe ser menor a 0
@@ -117,8 +108,25 @@ antecesor n = n - 1
 
 -- 2
 cuentaRegresiva :: Int -> [Int]
--- precondicion: el numero ingresado debe ser igual o mayor a 0
--- cuentaRegresiva MENSAJE DE ERROR CON NUMS MENORES A 0 ?
 cuentaRegresiva 0 = []
+cuentaRegresiva n = if n<1
+                      then []
+                      else n : cuentaRegresiva (antecesor n)
 
-cuentaRegresiva
+-- 3
+repetir :: Int -> a -> [a]
+repetir 0 e = []
+repetir n e = e : repetir (antecesor n) e
+
+-- 4
+losPrimeros :: Int -> [a] -> [a]
+losPrimeros 0 xs = []
+losPrimeros _ [] = []
+losPrimeros n (x:xs) = x : losPrimeros (antecesor n) xs
+
+--5
+sinLosPrimeros :: Int -> [a] -> [a]
+sinLosPrimeros 0 xs = xs 
+sinLosPrimeros _ [] = []
+sinLosPrimeros n (x:xs) = sinLosPrimeros (antecesor n) xs
+
