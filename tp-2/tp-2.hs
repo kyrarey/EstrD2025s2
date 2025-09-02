@@ -1,5 +1,4 @@
 -- PRACTICA 2
-
 -- 1 RECURSION SOBRE LISTAS
 -- 1
 sumatoria :: [Int] -> Int
@@ -130,3 +129,126 @@ sinLosPrimeros 0 xs = xs
 sinLosPrimeros _ [] = []
 sinLosPrimeros n (x:xs) = sinLosPrimeros (antecesor n) xs
 
+
+-- 3 REGISTROS
+-- 1.1
+data Persona = P String Int -- Nombre Edad
+  deriving (Show)
+
+edad :: Persona -> Int
+edad (P n e) = e
+
+mayoresA :: Int -> [Persona] -> [Persona]
+mayoresA _ [] = []
+mayoresA e (p: ps) = if edad p > e 
+                        then p : mayoresA e ps
+                        else  mayoresA e ps
+
+-- 1.2
+promedioEdad :: [Persona] -> Int
+--Precondición: la lista al menos posee una persona.
+promedioEdad [] = error "La lista dada no contiene personas"
+promedioEdad [p] = edad p
+promedioEdad ps = promedioEn (edades ps)
+
+edades :: [Persona] -> [Int]
+edades [] = []
+edades (p:ps) = edad p: edades ps
+
+promedioEn :: [Int] -> Int
+promedioEn [] = 0
+promedioEn ns = div (sumatoria ns) (longitud ns)
+
+-- 1.3
+elMasViejo :: [Persona] -> Persona
+--Precondición: la lista al menos posee una persona.
+elMasViejo [] = error "La lista dada no contiene personas"
+elMasViejo [p] = p
+elMasViejo (p:ps) = if edad p > edad (elMasViejo ps) 
+                      then p
+                      else elMasViejo ps
+
+-- 2
+data TipoDePokemon = Agua | Fuego | Planta
+  deriving (Show)
+
+data Pokemon = Pk TipoDePokemon Int --tipo energia
+  deriving (Show)
+
+data Entrenador = E String [Pokemon] --nombre lista de pk
+  deriving (Show)
+
+-- 2.1
+cantPokemon :: Entrenador -> Int
+cantPokemon (E _ ps) = longitud ps
+
+-- 2.2
+cantPokemonDe :: TipoDePokemon -> Entrenador -> Int
+cantPokemonDe t (E _ ps) = longitud (soloDeTipo t ps)
+
+soloDeTipo :: TipoDePokemon -> [Pokemon] -> [Pokemon]
+soloDeTipo t [] = []
+soloDeTipo t (p:ps) = if mismoTipo (tipo p) t
+                        then p:soloDeTipo t ps
+                        else soloDeTipo t ps
+
+tipo :: Pokemon -> TipoDePokemon
+tipo (Pk t _) = t
+
+mismoTipo :: TipoDePokemon -> TipoDePokemon -> Bool
+mismoTipo Agua Agua = True
+mismoTipo Planta Planta = True
+mismoTipo Fuego Fuego = True
+mismoTipo _ _ = False
+
+-- 2.3
+cuantosDeTipo_De_LeGananATodosLosDe_:: TipoDePokemon -> Entrenador -> Entrenador -> Int
+cuantosDeTipo_De_LeGananATodosLosDe_ t e1 e2 = cantPokemonDeTipo_De_QueGananA_ t (pokemonDe e1) (pokemonDe e2)
+
+cantPokemonDeTipo_De_QueGananA_ :: TipoDePokemon -> [Pokemon] -> [Pokemon] -> Int
+cantPokemonDeTipo_De_QueGananA_ t [] ps = 0
+cantPokemonDeTipo_De_QueGananA_ t (p1:p1s) p2s = unoSiCeroSino(mismoTipo t (tipo p1) && superaATodos p1 p2s) + cantPokemonDeTipo_De_QueGananA_ t p1s p2s 
+
+superaATodos :: Pokemon -> [Pokemon] -> Bool
+superaATodos pk [] = True
+superaATodos pk (p:ps) = superaA pk p && superaATodos pk ps
+
+pokemonDe :: Entrenador -> [Pokemon]
+pokemonDe (E _ ps) = ps
+
+unoSiCeroSino :: Bool -> Int
+unoSiCeroSino True = 1
+unoSiCeroSino _ = 0
+
+superaA :: Pokemon -> Pokemon -> Bool
+superaA n m = venceA (tipo n, tipo m)
+
+venceA :: (TipoDePokemon, TipoDePokemon) -> Bool
+venceA (Agua, Fuego) = True
+venceA (Fuego, Planta) = True
+venceA (Planta, Agua) = True
+venceA (_, _) = False
+
+-- 2.4
+
+esMaestroPokemon :: Entrenador -> Bool
+esMaestroPokemon (E _ ps) = tieneTipo ps Fuego && tieneTipo ps Agua && tieneTipo ps Planta
+
+tieneTipo :: [Pokemon] -> TipoDePokemon -> Bool
+tieneTipo [] t = False
+tieneTipo (p:ps) t = mismoTipo (tipo p) t || tieneTipo ps t
+
+-- 3
+data Seniority = Junior | SemiSenior | Senior
+  deriving (Show)
+
+data Proyecto = Py String --nombre
+  deriving (Show)
+
+data Rol = Developer Seniority Proyecto | Management Seniority Proyecto
+  deriving (Show)
+
+data Empresa = Em [Rol]
+  deriving (Show)
+
+-- 3.1
