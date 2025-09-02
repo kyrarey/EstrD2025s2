@@ -104,16 +104,21 @@ elMinimo (x : xs) =
     then x
     else elMinimo xs
 
-{-
 -- 2 RECURSION SOBRE NUMEROS
 
 -- 1
 factorial :: Int -> Int
 -- precondición: n no debe ser menor a 0
 factorial 0 = 1
-factorial n = (n * antecesor n) + factorial antecesor n
+factorial n = (n * antecesor n) + factorial (antecesor n)
 
 antecesor :: Int -> Int
+antecesor n = n - 1
 
-antecesor n : n - 1
--}
+-- 2
+cuentaRegresiva :: Int -> [Int]
+-- precondicion: el numero ingresado debe ser igual o mayor a 0
+-- cuentaRegresiva MENSAJE DE ERROR CON NUMS MENORES A 0 ?
+cuentaRegresiva 0 = []
+
+cuentaRegresiva
