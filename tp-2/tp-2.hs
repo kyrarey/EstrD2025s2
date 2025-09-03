@@ -302,17 +302,8 @@ cantEmpleadosEnProyectosDe ps (r:rs) = unoSiCeroSino (pertenece (nombreDelProyec
 
 -- 3.4
 asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
-asignadosPorProyecto (Em rs) = asignadosAProyectosDe rs
+asignadosPorProyecto e = proyectosConEmpleados (proyectos e) e
 
-asignadosAProyectosDe :: [Rol] -> [(Proyecto, Int)]
-asignadosAProyectosDe [] = []
-asignadosAProyectosDe (r:rs) = if pertenece (nombreDelProyecto (proyectoDelRol r)) (nombresDeProyectos (proyectosDe rs))
-                                then asignadosAProyectosDe rs
-                                else (proyectoDelRol r, cantEmpleadosEnProyectoDe (proyectoDelRol r) rs) : asignadosAProyectosDe rs
-
-cantEmpleadosEnProyectoDe :: Proyecto -> [Rol] -> Int
-cantEmpleadosEnProyectoDe p [] = 0
-cantEmpleadosEnProyectoDe p (r:rs) = unoSiCeroSino (mismoNombre (nombreDelProyecto (proyectoDelRol r)) (nombreDelProyecto p)) + cantEmpleadosEnProyectoDe p rs
-
-mismoNombre :: String -> String -> Bool
-mismoNombre s n = s == n 
+proyectosConEmpleados :: [Proyecto] -> Empresa -> [(Proyecto, Int)]
+proyectosConEmpleados [] _ = []
+proyectosConEmpleados (p : ps) e = (p, cantQueTrabajanEn [p] e) : proyectosConEmpleados ps e
