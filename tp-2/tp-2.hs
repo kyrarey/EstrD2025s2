@@ -100,7 +100,7 @@ elMinimo (x : xs) =
 factorial :: Int -> Int
 -- precondición: n no debe ser menor a 0
 factorial 0 = 1
-factorial n = (n * antecesor n) + factorial (antecesor n)
+factorial n = n * factorial (n - 1)
 
 antecesor :: Int -> Int
 antecesor n = n - 1
@@ -252,3 +252,67 @@ data Empresa = Em [Rol]
   deriving (Show)
 
 -- 3.1
+proyectos :: Empresa -> [Proyecto]
+proyectos (Em rs) = proyectosDe rs
+ 
+proyectosDe :: [Rol] -> [Proyecto]
+proyectosDe [] = []
+proyectosDe (r:rs) = if pertenece (nombreDelProyecto (proyectoDelRol r)) (nombresDeProyectos (proyectosDe rs))
+                           then proyectosDe rs
+                           else proyectoDelRol r : proyectosDe rs
+
+proyectoDelRol :: Rol -> Proyecto
+proyectoDelRol (Developer _ pr) = pr
+proyectoDelRol (Management _ pr) = pr
+
+nombresDeProyectos :: [Proyecto] -> [String]
+nombresDeProyectos [] = []
+nombresDeProyectos (p:ps) = if pertenece (nombreDelProyecto p) (nombresDeProyectos ps) 
+                                then nombresDeProyectos ps
+                                else nombreDelProyecto p:nombresDeProyectos ps
+
+nombreDelProyecto :: Proyecto -> String
+nombreDelProyecto (Py n) = n
+
+
+-- 3.2
+losDevSenior :: Empresa -> [Proyecto] -> Int
+losDevSenior (Em rs) ps = cantidadDevSrDe_EnProyectos rs ps 
+
+cantidadDevSrDe_EnProyectos :: [Rol] -> [Proyecto] -> Int
+cantidadDevSrDe_EnProyectos [] _ = 0
+cantidadDevSrDe_EnProyectos (r:rs) ps = unoSiCeroSino ( esDevYSr r && pertenece (nombreDelProyecto (proyectoDelRol r)) (nombresDeProyectos ps) ) + cantidadDevSrDe_EnProyectos rs ps 
+
+esDevYSr :: Rol -> Bool
+esDevYSr (Developer Senior _ ) = True
+esDevYSr _ = False
+
+
+-- 3.3
+cantQueTrabajanEn :: [Proyecto] -> Empresa -> Int
+cantQueTrabajanEn ps e = cantEmpleadosEnProyectosDe ps (rolesDe e)
+
+rolesDe :: Empresa -> [Rol]
+rolesDe (Em rs) = rs
+
+cantEmpleadosEnProyectosDe :: [Proyecto] -> [Rol] -> Int
+cantEmpleadosEnProyectosDe _ [] = 0
+cantEmpleadosEnProyectosDe ps (r:rs) = unoSiCeroSino (pertenece (nombreDelProyecto (proyectoDelRol r)) (nombresDeProyectos ps)) + cantEmpleadosEnProyectosDe ps rs
+
+
+-- 3.4
+asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
+asignadosPorProyecto (Em rs) = asignadosAProyectosDe rs
+
+asignadosAProyectosDe :: [Rol] -> [(Proyecto, Int)]
+asignadosAProyectosDe [] = []
+asignadosAProyectosDe (r:rs) = if pertenece (nombreDelProyecto (proyectoDelRol r)) (nombresDeProyectos (proyectosDe rs))
+                                then asignadosAProyectosDe rs
+                                else (proyectoDelRol r, cantEmpleadosEnProyectoDe (proyectoDelRol r) rs) : asignadosAProyectosDe rs
+
+cantEmpleadosEnProyectoDe :: Proyecto -> [Rol] -> Int
+cantEmpleadosEnProyectoDe p [] = 0
+cantEmpleadosEnProyectoDe p (r:rs) = unoSiCeroSino (mismoNombre (nombreDelProyecto (proyectoDelRol r)) (nombreDelProyecto p)) + cantEmpleadosEnProyectoDe p rs
+
+mismoNombre :: String -> String -> Bool
+mismoNombre s n = s == n 
