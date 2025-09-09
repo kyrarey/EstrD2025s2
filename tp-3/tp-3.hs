@@ -49,6 +49,11 @@ data Objeto = Cacharro | Tesoro
 data Camino = Fin | Cofre [Objeto] Camino | Nada Camino
   deriving (Show)
 
+--TEST
+d1 = Cofre [Cacharro, Tesoro] (Nada (Cofre [Cacharro, Cacharro] Fin))
+d2 = Nada ( Cofre [Cacharro, Cacharro] (Nada (Cofre [Cacharro, Cacharro] Fin)))
+
+
 -- 1.2.1
 hayTesoro :: Camino -> Bool
 hayTesoro Fin = False
@@ -67,36 +72,44 @@ esTesoro _ = False
 pasosHastaTesoro :: Camino -> Int
 -- Precondición: tiene que haber al menos un tesoro.
 pasosHastaTesoro Fin = 0
-pasosHastaTesoro (Cofre objs c) = unoSi (not hayTesoroEnObjs objs) + pasosHastaTesoro c
+pasosHastaTesoro (Cofre objs c) = unoSi (not (hayTesoroEnObjs objs)) + pasosHastaTesoro c
 pasosHastaTesoro (Nada c) = pasosHastaTesoro c
 
 -- 1.2.3
 hayTesoroEn :: Int -> Camino -> Bool
-hayTesoroEn _ Fin = 0
+hayTesoroEn _ Fin = False
 hayTesoroEn n (Cofre objs c) = if pasosHastaTesoro c /= n
-                                  then hayTesoroEn n-1 c
+                                  then hayTesoroEn (n-1) c
                                   else hayTesoroEnObjs objs 
-hayTesoroEn _ (Nada c) = hayTesoroEn c
+hayTesoroEn n (Nada c) = hayTesoroEn n c
 
 -- 1.2.4
 alMenosNTesoros :: Int -> Camino -> Bool
 alMenosNTesoros _ Fin = False
-alMenosNTesoros n (Cofre objs c) = (numTotalDeTesoros objs c) > n || alMenosNTesoros c
-alMenosNTesoros _ (Nada c) = alMenosNTesoros c
+alMenosNTesoros n (Cofre objs c) = (numTotalDeTesoros objs c) > n || alMenosNTesoros n c
+alMenosNTesoros n (Nada c) = alMenosNTesoros n c
 
 numTotalDeTesoros :: [Objeto] -> Camino -> Int
 numTotalDeTesoros _ Fin = 0
-numTotalDeTesoros objs (Cofre objs1 c) = unoSi (hayTesoroEnObjs objs) + numTotalDeTesoros c
-numTotalDeTesoros _ (Nada c) = numTotalDeTesoros c
+numTotalDeTesoros objs (Cofre objs1 c) = unoSi (hayTesoroEnObjs objs) + numTotalDeTesoros objs c
+numTotalDeTesoros objs (Nada c) = numTotalDeTesoros objs c
 
 -- 1.2.5
 cantTesorosEntre :: Int -> Int -> Camino -> Int
 cantTesorosEntre _ _ Fin = 0
-cantTesorosEntre n1 n2 (Cofre objs c) = if numPasosEnCamino n1 >= 3 || numPasosEnCamino n2 >= 5
-                                          then unoSi (hayTesoroEnObjs objs) + cantTesorosEntre c
-                                          else cantTesorosEntre c
-cantTesorosEntre _ _ (Nada c) = cantTesorosEntre c
+cantTesorosEntre n1 n2 (Cofre objs c) = if numPasosEnCamino c >= n1 || numPasosEnCamino c <= n2
+                                          then unoSi (hayTesoroEnObjs objs) + cantTesorosEntre n1 n2 c
+                                          else cantTesorosEntre n1 n2 c
+cantTesorosEntre n1 n2 (Nada c) = cantTesorosEntre n1 n2 c
 
+numPasosEnCamino :: Camino -> Int
+numPasosEnCamino Fin = 0
+numPasosEnCamino (Cofre objs c) = unoSi (esFin c) + numPasosEnCamino c
+numPasosEnCamino (Nada c) = numPasosEnCamino c
+
+esFin :: Camino -> Bool
+esFin Fin = True
+esFin _ = False
 
 -- 2 TIPOS ARBOREOS
 
@@ -111,30 +124,30 @@ sumarT (NodeT x t1 t2) = x + sumarT t1 + sumarT t2
 
 -- 2.1.2
 sizeT :: Tree a -> Int
-sumarT EmptyT = 0
-sumarT (NodeT x t1 t2) = lenght x + sizeT t1 + sizeT t2 
+sizeT EmptyT = 0
+sizeT (NodeT x t1 t2) = 1 + sizeT t1 + sizeT t2 
 
 -- 2.1.3
 mapDobleT :: Tree Int -> Tree Int
 mapDobleT EmptyT = EmptyT
-mapDobleT (NodeT x t1 t2) = Tree (NodeT x*2 (mapDobleT t1) (mapDobleT t2) )
+mapDobleT (NodeT x t1 t2) = (NodeT (x*2) (mapDobleT t1) (mapDobleT t2) )
 
 -- 2.1.4
 perteneceT :: Eq a => a -> Tree a -> Bool
-perteneceT _ EmptyT = EmptyT
-perteneceT e (NodeT x t1 t2) = e==x || perteneceT t1 || perteneceT t2
+perteneceT _ EmptyT = False
+perteneceT e (NodeT x t1 t2) = e==x || perteneceT e t1 || perteneceT e t2
 
 -- 2.1.5
 aparicionesT :: Eq a => a -> Tree a -> Int
-aparicionesT _ EmptyT = EmptyT
-aparicionesT e (NodeT x t1 t2) = unoSi (e == x) + aparicionesT t1 + aparicionesT t2
+aparicionesT _ EmptyT = 0
+aparicionesT e (NodeT x t1 t2) = unoSi (e == x) + aparicionesT e t1 + aparicionesT e t2
 
 -- 2.1.6
 leaves :: Tree a -> [a]
-leaves EmptyT = EmptyT
+leaves EmptyT = []
 leaves (NodeT x t1 t2) = siEsHoja (NodeT x t1 t2) ++ leaves t1 ++ leaves t2
 
 siEsHoja :: Tree a -> [a]
 siEsHoja (NodeT x EmptyT EmptyT) = [x]
-siEsHoja _ = [False]
+siEsHoja _ = []
 
