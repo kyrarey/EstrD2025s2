@@ -24,7 +24,7 @@ unoSi False = 0
 
 -- 1.1.2
 poner :: Color -> Celda -> Celda
-poner c1 (Bolita c2 cel) = Bolita c1 (Bolita c2 CeldaVacia)
+poner c1 (Bolita c2 cel) = Bolita c1 (Bolita c2 cel)
 
 -- 1.1.3
 sacar :: Color -> Celda -> Celda
@@ -37,10 +37,7 @@ sacar c1 (Bolita c2 cel) =
 -- 1.1.4
 ponerN :: Int -> Color -> Celda -> Celda
 ponerN 0 _ cel = cel
-ponerN n c (Bolita c2 cel) =
-  if n /= 1
-    then ponerN (n - 1) c (poner c cel)
-    else poner c cel
+ponerN n c (Bolita c2 cel) = ponerN (n - 1) c (poner c cel)
 
 -- 1.2 CAMINO HACIA EL TESORO
 data Objeto = Cacharro | Tesoro
@@ -50,8 +47,27 @@ data Camino = Fin | Cofre [Objeto] Camino | Nada Camino
   deriving (Show)
 
 --TEST
-d1 = Cofre [Cacharro, Tesoro] (Nada (Cofre [Cacharro, Cacharro] Fin))
-d2 = Nada ( Cofre [Cacharro, Cacharro] (Nada (Cofre [Cacharro, Cacharro] Fin)))
+c1 = Cofre [Cacharro, Tesoro] 
+        (Nada 
+            (Cofre [Cacharro, Cacharro] Fin)
+            )
+c2 = Nada ( 
+        Cofre [Cacharro, Cacharro] 
+            (Nada 
+                (Cofre [Cacharro, Cacharro] Fin))
+          )
+
+c3 = Nada (
+          Cofre [Tesoro, Cacharro] 
+              (Nada 
+                  (Cofre [Tesoro, Tesoro] Fin))
+          )
+
+c4 = Cofre [Cacharro] 
+        (Nada 
+            (Cofre [Cacharro, Cacharro] 
+                (Cofre [Cacharro, Tesoro] Fin))
+        )
 
 
 -- 1.2.1
@@ -71,9 +87,11 @@ esTesoro _ = False
 -- 1.2.2
 pasosHastaTesoro :: Camino -> Int
 -- Precondición: tiene que haber al menos un tesoro.
-pasosHastaTesoro Fin = 0
-pasosHastaTesoro (Cofre objs c) = unoSi (not (hayTesoroEnObjs objs)) + pasosHastaTesoro c
-pasosHastaTesoro (Nada c) = pasosHastaTesoro c
+-- pasosHastaTesoro Fin = nunca se llega a fin porque se encuentra el tesoro antes
+pasosHastaTesoro (Cofre objs c) = if hayTesoroEnObjs objs
+                                    then 0
+                                    else 1 + pasosHastaTesoro c
+pasosHastaTesoro (Nada c) = 1 + pasosHastaTesoro c
 
 -- 1.2.3
 hayTesoroEn :: Int -> Camino -> Bool
@@ -85,37 +103,52 @@ hayTesoroEn n (Nada c) = hayTesoroEn n c
 
 -- 1.2.4
 alMenosNTesoros :: Int -> Camino -> Bool
-alMenosNTesoros _ Fin = False
-alMenosNTesoros n (Cofre objs c) = (numTotalDeTesoros objs c) > n || alMenosNTesoros n c
-alMenosNTesoros n (Nada c) = alMenosNTesoros n c
+alMenosNTesoros n c = (cantTesorosEnCamino c ) >= n
 
-numTotalDeTesoros :: [Objeto] -> Camino -> Int
-numTotalDeTesoros _ Fin = 0
-numTotalDeTesoros objs (Cofre objs1 c) = unoSi (hayTesoroEnObjs objs) + numTotalDeTesoros objs c
-numTotalDeTesoros objs (Nada c) = numTotalDeTesoros objs c
+cantTesorosEnCamino :: Camino -> Int
+cantTesorosEnCamino Fin = 0
+cantTesorosEnCamino (Cofre objs c) = cantTesorosEnObjs objs + cantTesorosEnCamino c
+cantTesorosEnCamino (Nada c) = cantTesorosEnCamino c
 
--- 1.2.5
+cantTesorosEnObjs :: [Objeto] -> Int
+cantTesorosEnObjs [] = 0
+cantTesorosEnObjs (obj:objs) = unoSi (esTesoro obj) + cantTesorosEnObjs objs
+
+-- 1.2.5 !!
 cantTesorosEntre :: Int -> Int -> Camino -> Int
 cantTesorosEntre _ _ Fin = 0
 cantTesorosEntre n1 n2 (Cofre objs c) = if numPasosEnCamino c >= n1 || numPasosEnCamino c <= n2
-                                          then unoSi (hayTesoroEnObjs objs) + cantTesorosEntre n1 n2 c
+                                          then cantTesorosEnObjs objs + cantTesorosEntre n1 n2 c
                                           else cantTesorosEntre n1 n2 c
 cantTesorosEntre n1 n2 (Nada c) = cantTesorosEntre n1 n2 c
 
 numPasosEnCamino :: Camino -> Int
 numPasosEnCamino Fin = 0
-numPasosEnCamino (Cofre objs c) = unoSi (esFin c) + numPasosEnCamino c
+numPasosEnCamino (Cofre objs c) = unoSi (noEsFinal c) + numPasosEnCamino c
 numPasosEnCamino (Nada c) = numPasosEnCamino c
 
-esFin :: Camino -> Bool
-esFin Fin = True
-esFin _ = False
+noEsFinal :: Camino -> Bool
+noEsFinal Fin = False
+noEsFinal _ = True
 
 -- 2 TIPOS ARBOREOS
 
 -- 2.1. ARBOLES BINARIOS
 data Tree a = EmptyT | NodeT a (Tree a) (Tree a)
   deriving (Show)
+
+t1 :: Tree Int
+t1 = NodeT 11 (NodeT 22 EmptyT EmptyT) (NodeT 37 EmptyT EmptyT)
+t2 :: Tree Int
+t2 = NodeT 1 (NodeT 1 EmptyT EmptyT) (NodeT 2 EmptyT EmptyT)
+t3 :: Tree Int
+t3 = NodeT 12 (NodeT 11 EmptyT 
+                  (NodeT 45 EmptyT EmptyT)
+              )
+              (NodeT 2 EmptyT
+                  (NodeT 23 EmptyT
+                      (NodeT 45 EmptyT EmptyT))
+              )
 
 -- 2.1.1
 sumarT :: Tree Int -> Int
@@ -151,3 +184,18 @@ siEsHoja :: Tree a -> [a]
 siEsHoja (NodeT x EmptyT EmptyT) = [x]
 siEsHoja _ = []
 
+-- 2.1.7
+heightT :: Tree a -> Int
+heightT EmptyT = 0
+heightT (NodeT x t1 t2) = if sizeT t1 > sizeT t2
+                              then unoSi (not (esHoja t1)) + heightT t1
+                              else unoSi (not (esHoja t2)) + heightT t2
+                
+esHoja :: Tree a -> Bool
+esHoja EmptyT = True
+esHoja _ = False
+
+-- 2.1.8
+-- mirrorT :: Tree a -> Tree a
+-- mirrorT EmptyT = 
+-- mirrorT (NodeT x t1 t2) = if not esHoja t1
