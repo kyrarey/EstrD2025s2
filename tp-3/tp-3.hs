@@ -114,22 +114,20 @@ cantTesorosEnObjs [] = 0
 cantTesorosEnObjs (obj:objs) = unoSi (esTesoro obj) + cantTesorosEnObjs objs
 
 -- 1.2.5 !!
-cantTesorosEntre :: Int -> Int -> Camino -> Int
--- precondicion: n1 no puede ser mayor a n2
-cantTesorosEntre _ _ Fin = 0
-cantTesorosEntre 0 0 c = cantTesorosSiHay c
-cantTesorosEntre 0 n2 c = cantTesorosSiHay c + cantTesorosEntre 0 (n2-1) (darUnPaso c)
-cantTesorosEntre n1 n2 (Nada c) = cantTesorosEntre (n1-1) (n2-1) (darUnPaso c)
+cantTesorosEntre :: Int -> Int -> Camino -> Int --Precondición: n1 no es mayor que n2.
+cantTesorosEntre _ _ Fin        = 0
+cantTesorosEntre 0 0 c          = cantTesorosSiHay c
+cantTesorosEntre 0 n2 c         = cantTesorosSiHay c + cantTesorosEntre 0 (n2-1) (avanzar c)
+cantTesorosEntre n1 n2 c        = cantTesorosEntre (n1-1) (n2-1) (avanzar c)
 
 cantTesorosSiHay :: Camino -> Int
-cantTesorosSiHay (Cofre objs _ ) = cantTesorosEnObjs objs
-cantTesorosSiHay _ = 0
+cantTesorosSiHay (Cofre x _ ) = cantTesorosEnObjs x
+cantTesorosSiHay _            = 0
 
-darUnPaso :: Camino -> Camino
--- precondicion = Debe haber un camino siguiente
-darUnPaso (Cofre _ c ) = c
-darUnPaso (Nada c) = c
-darUnPaso Fin = error "No hay mas camino"
+avanzar :: Camino -> Camino --Precondición: No es el fin del camino.
+avanzar Fin = error "No se puede avanzar."
+avanzar (Cofre _ c) = c
+avanzar (Nada c)    = c
 
 -- 2 TIPOS ARBOREOS
 
