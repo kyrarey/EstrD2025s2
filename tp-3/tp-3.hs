@@ -149,6 +149,16 @@ t3 = NodeT 12 (NodeT 11 EmptyT
                   (NodeT 23 EmptyT
                       (NodeT 45 EmptyT EmptyT))
               )
+t4 :: Tree Int
+t4 = NodeT 56 (NodeT 8 EmptyT 
+                  (NodeT 290 EmptyT
+                      (NodeT 76 EmptyT
+                        (NodeT 46 EmptyT EmptyT)))
+              )
+              (NodeT 72 EmptyT
+                  (NodeT 509 EmptyT
+                      (NodeT 98 EmptyT EmptyT))
+              )
 
 -- 2.1.1
 sumarT :: Tree Int -> Int
@@ -196,6 +206,39 @@ esHoja EmptyT = True
 esHoja _ = False
 
 -- 2.1.8
--- mirrorT :: Tree a -> Tree a
--- mirrorT EmptyT = 
--- mirrorT (NodeT x t1 t2) = if not esHoja t1
+mirrorT :: Tree a -> Tree a
+mirrorT EmptyT = EmptyT
+mirrorT (NodeT x t1 t2) = NodeT x (mirrorT t2) (mirrorT t1)
+
+-- 2.1.9
+toList :: Tree a -> [a]
+toList EmptyT = []
+toList (NodeT x t1 t2) = toList t1 ++ [x] ++ toList t2
+
+-- 2.1.10
+levelN :: Int -> Tree a -> [a]
+levelN 0 (NodeT x t1 t2) = [x]
+levelN _ EmptyT = []
+levelN n (NodeT x t1 t2) = levelN (n-1) t1 ++ levelN (n-1) t2
+
+-- 2.1.11
+-- listPerLevel :: Tree a -> [[a]]  
+-- listPerLevel EmptyT =
+-- listPerLevel (NodeT x t1 t2) = x listPerLevel t1 listPerLevel t2 
+
+-- 2.1.12
+ramaMasLarga :: Tree a -> [a]
+ramaMasLarga EmptyT = []
+ramaMasLarga (NodeT x t1 t2) = if sizeT t1> sizeT t2
+                                  then x:ramaMasLarga t1
+                                  else x:ramaMasLarga t2 --si son del mismo largo devuelve la rama derecha
+
+-- 2.1.13
+-- todosLosCaminos :: Tree a -> [[a]]
+-- todosLosCaminos EmptyT = []
+-- todosLosCaminos (NodeT x t1 t2) = 
+--   [x: maximal t1] ++ todosLosCaminos t1 ++ [x: maximal t2] ++ todosLosCaminos t2
+
+-- maximal :: Tree a -> [a]
+-- maximal EmptyT = []
+-- maximal (NodeT x t1 t2) = [x]
