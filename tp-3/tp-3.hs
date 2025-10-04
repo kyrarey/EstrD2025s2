@@ -266,13 +266,22 @@ eval (Neg n) = -(eval n)
 -- 2.2.2
 simplificar :: ExpA -> ExpA
 simplificar (Valor n)          = Valor n
-simplificar (Sum (Valor 0) n)  = simplificar n
-simplificar (Sum n (Valor 0))  = simplificar n
-simplificar (Prod (Valor 0) n) = Valor 0
-simplificar (Prod n (Valor 0)) = Valor 0
-simplificar (Prod (Valor 1) n) = simplificar n
-simplificar (Prod n (Valor 1)) = simplificar n
-simplificar (Neg (Neg n))      = simplificar n
-simplificar (Sum n1 n2)        = (Sum (simplificar n1) (simplificar n2))
-simplificar (Prod n1 n2)       = (Prod (simplificar n1) (simplificar n2))
-simplificar (Neg n)            = (Neg (simplificar n))
+simplificar (Sum s1 s2)  = simplificarSuma (simplificar s1) (simplificar s2)
+simplificar (Prod p1 p2) = simplificarProd (simplificar p1) (simplificar p2)
+simplificar (Neg n) = simplificarNeg (simplificar n)
+
+simplificarSuma :: ExpA -> ExpA -> ExpA
+simplificarSuma (Valor 0) x = x 
+simplificarSuma x (Valor 0) = x
+simplificarSuma s1 s2 = Sum s1 s2
+
+simplificarProd :: ExpA -> ExpA -> ExpA
+simplificarProd (Valor 0) _ = Valor 0
+simplificarProd _ (Valor 0) = Valor 0
+simplificarProd (Valor 1) x = x
+simplificarProd x (Valor 1) = x
+simplificarProd p1 p2 = Prod p1 p2
+
+simplificarNeg :: ExpA -> ExpA
+simplificarNeg (Neg n) = n 
+simplificarNeg n = Neg n
